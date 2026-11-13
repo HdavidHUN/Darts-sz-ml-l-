@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Darts Számláló (501 / 301)</title>
+    <title>Darts Számláló (Kamerás 501 / 301)</title>
     <style>
         :root {
             --bg-color: #0f172a;
@@ -32,7 +31,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 12px;
+            padding: 10px;
             max-width: 600px;
             margin: 0 auto;
         }
@@ -42,42 +41,124 @@
             justify-content: space-between;
             align-items: center;
             background-color: var(--card-bg);
-            padding: 10px 16px;
+            padding: 8px 14px;
             border-radius: 12px;
             border: 1px solid var(--border);
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         header h1 {
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: var(--accent);
             letter-spacing: 0.5px;
         }
 
+        .header-btns {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
         .icon-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted);
-            font-size: 1.2rem;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 1.1rem;
             cursor: pointer;
-            padding: 4px;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .icon-btn.active {
+            background: rgba(34, 197, 94, 0.2);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* Kamera konténer */
+        .camera-wrapper {
+            display: none;
+            background-color: #000;
+            border: 2px solid var(--accent);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .camera-wrapper.open {
+            display: block;
+        }
+
+        .video-container {
+            width: 100%;
+            height: 210px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+        }
+
+        #darts-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform-origin: center center;
+            transition: transform 0.1s ease-out;
+        }
+
+        .camera-controls {
+            background: rgba(15, 23, 42, 0.9);
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border-top: 1px solid var(--border);
+        }
+
+        .zoom-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .zoom-control input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent);
+        }
+
+        .cam-switch-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
         }
 
         .players-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 12px;
+            gap: 8px;
+            margin-bottom: 10px;
         }
 
         .player-card {
             background-color: var(--card-bg);
             border: 2px solid var(--border);
             border-radius: 12px;
-            padding: 12px;
+            padding: 10px;
             text-align: center;
             transition: all 0.2s ease;
-            position: relative;
         }
 
         .player-card.active {
@@ -86,10 +167,10 @@
         }
 
         .player-name {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: bold;
             color: var(--text-muted);
-            margin-bottom: 4px;
+            margin-bottom: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -100,50 +181,47 @@
         }
 
         .player-score {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 800;
             line-height: 1.1;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
 
         .player-stats {
-            font-size: 0.75rem;
+            font-size: 0.72rem;
             color: var(--text-muted);
         }
 
         .checkout-box {
             background-color: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 10px;
+            border-radius: 10px;
+            padding: 8px;
             text-align: center;
-            margin-bottom: 12px;
-            min-height: 48px;
+            margin-bottom: 10px;
+            min-height: 42px;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
         .checkout-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 2px;
         }
 
         .checkout-route {
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             font-weight: bold;
             color: #38bdf8;
-            letter-spacing: 0.5px;
         }
 
         .keypad {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
+            gap: 6px;
         }
 
         .key {
@@ -151,9 +229,9 @@
             border: 1px solid var(--border);
             border-radius: 10px;
             color: var(--text-main);
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             font-weight: 600;
-            padding: 16px 0;
+            padding: 14px 0;
             cursor: pointer;
             display: flex;
             justify-content: center;
@@ -177,7 +255,7 @@
             color: #0f172a;
             border-color: var(--accent);
             grid-column: span 2;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
         }
 
         /* Modális ablakok */
@@ -185,7 +263,7 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0,0,0,0.75);
             justify-content: center;
             align-items: center;
             z-index: 100;
@@ -262,11 +340,27 @@
 
     <header>
         <h1 id="header-title">501 DO</h1>
-        <div>
+        <div class="header-btns">
+            <button class="icon-btn" id="cam-toggle-btn" onclick="toggleCamera()" title="Kamera">📷 <span style="font-size:0.8rem">Kamera</span></button>
             <button class="icon-btn" onclick="openSettings()" title="Beállítások">⚙️</button>
             <button class="icon-btn" onclick="resetMatch()" title="Új meccs">🔄</button>
         </div>
     </header>
+
+    <!-- Kamera doboz -->
+    <div class="camera-wrapper" id="camera-wrapper">
+        <div class="video-container">
+            <video id="darts-video" autoplay playsinline muted></video>
+        </div>
+        <div class="camera-controls">
+            <div class="zoom-control">
+                <span>🔍</span>
+                <input type="range" id="zoom-slider" min="1" max="3" step="0.1" value="1" oninput="updateZoom(this.value)">
+                <span id="zoom-val">1.0x</span>
+            </div>
+            <button class="cam-switch-btn" onclick="switchCamera()">🔄 Fordít</button>
+        </div>
+    </div>
 
     <div class="players-container">
         <div class="player-card active" id="card-0" onclick="renamePlayer(0)">
@@ -335,6 +429,71 @@
     </div>
 
     <script>
+        /* KAMERA LOGIKA */
+        let currentStream = null;
+        let useFrontCamera = false;
+
+        async function toggleCamera() {
+            const wrapper = document.getElementById('camera-wrapper');
+            const btn = document.getElementById('cam-toggle-btn');
+
+            if (wrapper.classList.contains('open')) {
+                stopCamera();
+                wrapper.classList.remove('open');
+                btn.classList.remove('active');
+            } else {
+                const started = await startCamera();
+                if (started) {
+                    wrapper.classList.add('open');
+                    btn.classList.add('active');
+                }
+            }
+        }
+
+        async function startCamera() {
+            stopCamera();
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("A böngésződ nem támogatja a kamera elérését, vagy nem biztonságos (HTTPS) kapcsolaton vagy.");
+                return false;
+            }
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: useFrontCamera ? "user" : "environment",
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    },
+                    audio: false
+                };
+                currentStream = await navigator.mediaDevices.getUserMedia(constraints);
+                const video = document.getElementById('darts-video');
+                video.srcObject = currentStream;
+                return true;
+            } catch (err) {
+                alert("Nem sikerült elindítani a kamerát. Kérlek engedélyezd a kamera használatát a böngészőben!");
+                return false;
+            }
+        }
+
+        function stopCamera() {
+            if (currentStream) {
+                currentStream.getTracks().forEach(track => track.stop());
+                currentStream = null;
+            }
+        }
+
+        async function switchCamera() {
+            useFrontCamera = !useFrontCamera;
+            await startCamera();
+        }
+
+        function updateZoom(val) {
+            const video = document.getElementById('darts-video');
+            video.style.transform = `scale(${val})`;
+            document.getElementById('zoom-val').innerText = parseFloat(val).toFixed(1) + 'x';
+        }
+
+        /* DARTS SZÁMLÁLÓ LOGIKA */
         const checkouts = {
             170: "T20 T20 D25", 167: "T20 T19 D25", 164: "T20 T18 D25", 161: "T20 T17 D25", 160: "T20 T20 D20",
             158: "T20 T20 D19", 157: "T20 T19 D20", 156: "T20 T20 D18", 155: "T20 T19 D19", 154: "T20 T18 D20",
@@ -414,7 +573,6 @@
             const points = parseInt(state.inputBuffer);
             if (isNaN(points)) return;
 
-            // Állapot mentés visszavonáshoz
             state.history.push(JSON.parse(JSON.stringify(state)));
 
             const currentScore = state.scores[state.activePlayer];
@@ -423,13 +581,8 @@
 
             if (newScore < 0) {
                 isBust = true;
-            } else if (newScore === 0) {
-                if (state.checkoutType === "DO") {
-                    // Egyszerűsített feltétel: ha 0-ra érkezik, feltételezzük a duplát vagy kérdezünk
-                    // A felhasználói élmény miatt itt elfogadjuk a kiszállást
-                }
             } else if (newScore === 1 && state.checkoutType === "DO") {
-                isBust = true; // 1-re nem lehet duplával kiszállni
+                isBust = true;
             }
 
             if (isBust) {
@@ -442,7 +595,6 @@
                 return;
             }
 
-            // Statisztika frissítés
             state.stats[state.activePlayer].darts += 3;
             state.stats[state.activePlayer].totalScore += points;
 
@@ -480,14 +632,12 @@
 
             document.getElementById('header-title').innerText = `${state.startScore} ${state.checkoutType}`;
 
-            // Átlagok számítása
             for(let i=0; i<2; i++) {
                 const s = state.stats[i];
                 const avg = s.darts > 0 ? ((s.totalScore / s.darts) * 3).toFixed(1) : "0.0";
                 document.getElementById(`avg-${i}`).innerText = avg;
             }
 
-            // Kiszálló javaslat
             const currScore = state.scores[state.activePlayer];
             const checkoutEl = document.getElementById('checkout-text');
             if (currScore <= 170 && checkouts[currScore]) {
@@ -529,12 +679,3 @@
             state.inputBuffer = "";
             state.history = [];
             state.stats = [{ darts: 0, totalScore: 0 }, { darts: 0, totalScore: 0 }];
-            saveState();
-            updateUI();
-            clearInput();
-        }
-
-        window.onload = init;
-    </script>
-</body>
-</html>
