@@ -679,3 +679,12 @@
             state.inputBuffer = "";
             state.history = [];
             state.stats = [{ darts: 0, totalScore: 0 }, { darts: 0, totalScore: 0 }];
+            saveState();
+            updateUI();
+            clearInput();
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
